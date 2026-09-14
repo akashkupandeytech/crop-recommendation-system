@@ -141,6 +141,15 @@
             line-height: 1.5;
         }
 
+        .fertilizer {
+            margin-top: 15px;
+            padding: 15px;
+            background: #f0f8f0;
+            border-radius: 10px;
+            color: #555;
+            line-height: 1.5;
+        }
+
         .footer {
             text-align: center;
             margin-top: 25px;
@@ -169,10 +178,12 @@
 <div class="container">
 
     <div class="top-bar">
+
         <select id="language" onchange="changeLanguage()">
             <option value="en">English</option>
             <option value="hi">हिंदी</option>
         </select>
+
     </div>
 
     <h1 id="title">🌱 Crop Recommendation System</h1>
@@ -181,7 +192,30 @@
         Enter soil and weather conditions to get the recommended crop.
     </p>
 
+    {% if error %}
+    <div style="
+        margin-bottom: 20px;
+        padding: 15px;
+        background: #ffe8e8;
+        color: #b00020;
+        border-radius: 10px;
+        text-align: center;
+        font-weight: bold;
+    ">
+        ⚠️ {{ error }}
+    </div>
+    {% endif %}
+
+
     <form action="/predict" method="POST">
+
+        <!-- Hidden language value sent to Flask -->
+        <input
+            type="hidden"
+            name="language"
+            id="selectedLanguage"
+            value="{{ language if language else 'en' }}"
+        >
 
         <div class="form-grid">
 
@@ -222,13 +256,22 @@
 
         </div>
 
+
         <div class="buttons">
 
-            <button type="submit" class="recommend-btn" id="recommend">
+            <button
+                type="submit"
+                class="recommend-btn"
+                id="recommend"
+            >
                 🌾 Recommend Crop
             </button>
 
-            <button type="reset" class="reset-btn" id="reset">
+            <button
+                type="reset"
+                class="reset-btn"
+                id="reset"
+            >
                 Reset
             </button>
 
@@ -236,30 +279,53 @@
 
     </form>
 
+
     {% if prediction %}
 
     <div class="result">
 
-        <h2 id="result-title">🌾 Recommended Crop</h2>
+        <h2 id="result-title">
+            🌾 Recommended Crop
+        </h2>
 
         <div class="crop-name">
-            🌱 {{ prediction|capitalize }}
+            🌱 {{ prediction}}
         </div>
 
         <div class="confidence">
-            <span id="confidence-text">Prediction confidence:</span>
+
+            <span id="confidence-text">
+                Prediction confidence:
+            </span>
+
             <strong>{{ confidence }}%</strong>
+
         </div>
+
 
         <p class="info">
             {{ information }}
         </p>
 
+
+        <div class="fertilizer">
+
+            <strong id="fertilizer-title">
+                🌾 Fertilizer Guidance:
+            </strong>
+
+            <p id="fertilizer-text">
+                {{ fertilizer }}
+            </p>
+
+        </div>
+
     </div>
 
     {% endif %}
 
-    <div class="footer">
+
+    <div class="footer" id="footer">
         AI/ML Based Crop Recommendation System
     </div>
 
@@ -270,9 +336,16 @@
 
 function changeLanguage() {
 
+    // Get selected language from dropdown
     const language = document.getElementById("language").value;
 
+    // Send selected language to Flask
+    document.getElementById("selectedLanguage").value = language;
+
+
     if (language === "hi") {
+
+        // Hindi
 
         document.getElementById("title").innerText =
             "🌱 फसल सुझाव प्रणाली";
@@ -313,7 +386,15 @@ function changeLanguage() {
         document.getElementById("confidence-text").innerText =
             "मॉडल का confidence:";
 
+        document.getElementById("fertilizer-title").innerText =
+            "🌾 उर्वरक सुझाव:";
+
+        document.getElementById("footer").innerText =
+            "AI/ML आधारित फसल सुझाव प्रणाली";
+
     } else {
+
+        // English
 
         document.getElementById("title").innerText =
             "🌱 Crop Recommendation System";
@@ -353,8 +434,27 @@ function changeLanguage() {
 
         document.getElementById("confidence-text").innerText =
             "Prediction confidence:";
+
+        document.getElementById("fertilizer-title").innerText =
+            "🌾 Fertilizer Guidance:";
+
+        document.getElementById("footer").innerText =
+            "AI/ML Based Crop Recommendation System";
     }
 }
+
+
+// Set language correctly when page loads
+window.onload = function() {
+
+    const currentLanguage =
+        document.getElementById("selectedLanguage").value;
+
+    document.getElementById("language").value =
+        currentLanguage;
+
+    changeLanguage();
+};
 
 </script>
 
